@@ -16,19 +16,27 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useModalContext } from "../context/DialogContext";
 import { ModalDelete } from "../components/modal/ModalDelete";
 import { useNavigate } from "react-router-dom";
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
+import { useEffect, useState } from "react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { ReporteIndividual } from "../components/reportes/Reportes";
 
 export const VerPage = () => {
   const {
-    state: { recordSelected: rs }
+    state: { recordSelected: rs },
   } = useRecordContext();
   const { modalDelete } = useModalContext();
 
   const navigate = useNavigate();
+  const [descargar, setdescargar] = useState(false);
+
+  useEffect(() => {
+    setdescargar(false);
+  }, [rs]);
 
   const handleUpdate = () => {
-    navigate("/actualizar")
-  }
+    navigate("/actualizar");
+  };
 
   const handleDelete = () => {
     console.log("open");
@@ -127,7 +135,7 @@ export const VerPage = () => {
                   <Button
                     style={{ width: 200 }}
                     variant="contained"
-                    onClick={() => {}}
+                    onClick={() => setdescargar(true)}
                   >
                     GENERAR PDF
                   </Button>
@@ -141,6 +149,18 @@ export const VerPage = () => {
                     </IconButton>
                   </div>
                 </Grid>
+                {descargar && (
+                  <Grid item>
+                    <PDFDownloadLink
+                      document={<ReporteIndividual record={rs} />}
+                      fileName="somename.pdf"
+                    >
+                      {({ blob, url, loading, error }) =>
+                        loading ? "Cargando Documento" : "Descargar Ahora"
+                      }
+                    </PDFDownloadLink>
+                  </Grid>
+                )}
               </CardContent>
             </Card>
           )}

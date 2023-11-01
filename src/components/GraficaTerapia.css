@@ -1,0 +1,12 @@
+.grafica-container {
+    width: 300px;
+    height: 400px;
+}
+
+.grafica-container svg{
+    width: "100%";
+}
+
+.recharts-surface{
+    width: 400;
+}

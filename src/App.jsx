@@ -9,15 +9,18 @@ import { AppRouter } from "./router/AppRouter";
 import { RecordProvider } from "./context/RecordContext";
 import { SnackbarProvider } from "notistack";
 import { ModalProvider } from "./context/DialogContext";
+import { TerapiaProvider } from "./context/TerapiaContext";
 
 function App() {
   return (
     <AuthProvider>
       <SnackbarProvider />
       <RecordProvider>
-        <ModalProvider>
-          <AppRouter />
-        </ModalProvider>
+        <TerapiaProvider>
+          <ModalProvider>
+            <AppRouter />
+          </ModalProvider>
+        </TerapiaProvider>
       </RecordProvider>
     </AuthProvider>
   );

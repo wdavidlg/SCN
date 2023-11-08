@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Grid } from "@mui/material";
 import { GraficaTerapia } from "../components/GraficaTerapia";
 import { TerapiaCard } from "../components/TerapiaCard";
@@ -6,25 +5,28 @@ import { ModalTerapia } from "../components/terapias/ModalTerapia";
 import { useModalContext } from "../context/DialogContext";
 import { useTerapiaContext } from "../context/TerapiaContext";
 import { useRecordContext } from "../context/RecordContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ModalDeleteTerapia } from "../components/modal/ModalDeleteTerapia";
 import { ModalTerapiaUpdate } from "../components/terapias/ModalTerapiaUpdate";
+import { ReporteTerapias } from "../components/reportes/ReporteTerapias";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 export const TerapiasPage = () => {
+  const { modalTerapiaNuevo } = useModalContext();
+  const { state, getAllByChild } = useTerapiaContext();
+  const {
+    state: { recordSelected },
+  } = useRecordContext();
+  const [descargar, setdescargar] = useState(false);
 
-    const {modalTerapiaNuevo} = useModalContext();
-    const {state, getAllByChild} = useTerapiaContext();
-    const {state:{recordSelected}} = useRecordContext()
+  useEffect(() => {
+    if (!recordSelected) return;
+    getAllByChild(recordSelected.id);
+  }, [recordSelected]);
 
-    useEffect(() => {
-      if(!recordSelected) return
-      getAllByChild(recordSelected.id)
-    }, [recordSelected])
-
-
-    const handleNuevo = () => {
-        modalTerapiaNuevo.open()
-    }   
+  const handleNuevo = () => {
+    modalTerapiaNuevo.open();
+  };
 
   return (
     <>
@@ -54,28 +56,60 @@ export const TerapiasPage = () => {
             marginBottom: 20,
           }}
         >
-          {
-            (state.terapias && state.terapias.length > 0) && (
-              <>
-                <GraficaTerapia data={state.terapias.slice().reverse()} />
-              </>
-            )
-          }
-          
+          {state.terapias && state.terapias.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+                alignItems: "center",
+              }}
+            >
+              <GraficaTerapia data={state.terapias.slice().reverse()} />
+              <Button
+                style={{ width: 200 }}
+                variant="contained"
+                onClick={() => setdescargar(true)}
+              >
+                GENERAR PDF
+              </Button>
+              {descargar && (
+                <Grid item>
+                  <PDFDownloadLink
+                    document={
+                      <ReporteTerapias
+                        terapias={state.terapias}
+                        titulo={`${recordSelected.name} ${recordSelected.lastName}`}
+                      />
+                    }
+                    fileName="terapias.pdf"
+                  >
+                    {({ blob, url, loading, error }) =>
+                      loading ? "Cargando Documento" : "Descargar Ahora"
+                    }
+                  </PDFDownloadLink>
+                </Grid>
+              )}
+            </div>
+          )}
         </Grid>
       </Grid>
       <Grid container justifyContent={"center"}>
-          {
-            state.terapias && (
-              state.terapias.map(item => (
-                <Grid item xs={12}  md={6} lg={4} style={{padding: 10}} key={item.id}>
-                  <TerapiaCard terapia={item} />
-                </Grid>
-              ))
-            )
-          }
+        {state.terapias &&
+          state.terapias.map((item) => (
+            <Grid
+              item
+              xs={12}
+              md={6}
+              lg={4}
+              style={{ padding: 10 }}
+              key={item.id}
+            >
+              <TerapiaCard terapia={item} />
+            </Grid>
+          ))}
       </Grid>
-      
+
       <ModalTerapia />
       <ModalDeleteTerapia />
       <ModalTerapiaUpdate />
